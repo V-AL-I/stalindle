@@ -674,7 +674,7 @@ Rank: ${game.rank.title} ${game.rank.medal}
 Streak: ${streak} 🔥 | Best: ${Math.max(stats.bestSurvivors, game.totalSurvivors)}
 
 Order must be maintained!
-stalindle.online`;
+https://stalindle.online`;
   }
 
   private async copyShareDispatch() {

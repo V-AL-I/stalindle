@@ -56,14 +56,18 @@ export function getTimeUntilNextDaily(): { hours: number; minutes: number; secon
   return { hours, minutes, seconds, formatted };
 }
 
-// Generate an array of size N
-// Uses random shuffle of 1..N or random uniform values with a chance of duplicates
+// Generate an array of size N containing all numbers from 1 to N shuffled (no duplicates)
 export function generateStalinArray(size: number, rng: () => number): number[] {
   const arr = new Array<number>(size);
-  // Using uniform integers from 1 to size
-  // This allows occasional duplicate values and natural distribution
   for (let i = 0; i < size; i++) {
-    arr[i] = Math.floor(rng() * size) + 1;
+    arr[i] = i + 1;
+  }
+  // Fisher-Yates shuffle
+  for (let i = size - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
   }
   return arr;
 }
