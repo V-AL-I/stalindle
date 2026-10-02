@@ -154,23 +154,48 @@ class StalindleGame {
   // Initialize or restore today's official single-attempt session
   private initDailyGameSession() {
     const today = getTodayDateStr();
+    const playerId = getOrCreatePlayerId();
+    const baseSeedStr = `stalindle-daily-${today}-${playerId}`;
+    const seed = hashString(baseSeedStr);
+    const rng = createPRNG(seed);
+
     this.todayGame = loadTodayGame(today);
 
+    // Initialize deterministic arrays
+    const defaultArrays = {
+      squad: generateStalinArray(10, rng),
+      platoon: generateStalinArray(50, rng),
+      company: generateStalinArray(100, rng),
+    };
+
     if (this.todayGame) {
-      // Restore arrays from today's saved record (prevents re-rolling upon refresh)
-      this.tierArrays = this.todayGame.initialArrays;
+      // Check if todayGame has valid current initialArrays
+      if (this.todayGame.initialArrays && this.todayGame.initialArrays.squad) {
+        this.tierArrays = this.todayGame.initialArrays;
+      } else {
+        this.tierArrays = defaultArrays;
+        this.todayGame.initialArrays = this.tierArrays;
+      }
+
+      // Restore completed results
+      if (Array.isArray(this.todayGame.tierResults)) {
+        this.todayGame.tierResults.forEach((tr) => {
+          if (tr && (tr.tierId === 'squad' || tr.tierId === 'platoon' || tr.tierId === 'company')) {
+            this.completedTierResults[tr.tierId] = tr;
+            if (tr.initialArray && tr.initialArray.length === TIERS.find(t => t.id === tr.tierId)?.size) {
+              this.tierArrays[tr.tierId] = tr.initialArray;
+            }
+          }
+        });
+      }
+
       this.tierSims = {
         squad: runStalinSortSimulation('squad', this.tierArrays.squad),
         platoon: runStalinSortSimulation('platoon', this.tierArrays.platoon),
         company: runStalinSortSimulation('company', this.tierArrays.company),
       };
 
-      // Restore completed results
-      this.todayGame.tierResults.forEach((tr) => {
-        this.completedTierResults[tr.tierId] = tr;
-      });
-
-      if (this.todayGame.completed) {
+      if (this.todayGame.completed && this.completedTierResults.squad && this.completedTierResults.platoon && this.completedTierResults.company) {
         // Player has ALREADY completed today's game!
         // Immediately show the result page as requested:
         this.setActiveTier('company');
@@ -179,7 +204,6 @@ class StalindleGame {
         this.commandTipText.textContent = 'Today’s official purge is complete. Review results below.';
         this.canvasOverlay.classList.add('hidden');
 
-        // Show the results modal right away!
         setTimeout(() => {
           this.openTribunalModal(this.todayGame!);
         }, 150);
@@ -196,24 +220,13 @@ class StalindleGame {
       }
     } else {
       // First visit today! Lock in today's unique deterministic arrays
-      const playerId = getOrCreatePlayerId();
-      const baseSeedStr = `stalindle-daily-${today}-${playerId}`;
-      const seed = hashString(baseSeedStr);
-      const rng = createPRNG(seed);
-
-      this.tierArrays = {
-        squad: generateStalinArray(10, rng),
-        platoon: generateStalinArray(50, rng),
-        company: generateStalinArray(100, rng),
-      };
-
+      this.tierArrays = defaultArrays;
       this.tierSims = {
         squad: runStalinSortSimulation('squad', this.tierArrays.squad),
         platoon: runStalinSortSimulation('platoon', this.tierArrays.platoon),
         company: runStalinSortSimulation('company', this.tierArrays.company),
       };
 
-      // Save initial record so refreshing cannot alter the arrays
       const initialGameData: DailyGameData = {
         dateStr: today,
         dayNumber: getDayNumber(today),
@@ -661,7 +674,7 @@ Rank: ${game.rank.title} ${game.rank.medal}
 Streak: ${streak} 🔥 | Best: ${Math.max(stats.bestSurvivors, game.totalSurvivors)}
 
 Order must be maintained!
-stalindle.app`;
+stalindle.online`;
   }
 
   private async copyShareDispatch() {
