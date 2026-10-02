@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STALINDLE — The Daily Stalin Sort Lottery</title>
+    <meta name="description" content="A daily lottery game based on Stalin Sort. Test your daily luck across 10, 50, and 100 elements to achieve the most surviving loyal comrades." />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;900&family=Russo+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  </head>
+  <body class="theme-soviet">
+    <!-- CRT Scanline & Vignette Overlay (Default) -->
+    <div id="crtOverlay" class="crt-overlay"></div>
+
+    <div id="app" class="app-container">
+      <!-- Top Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <div class="star-badge">★</div>
+          <div class="brand-info">
+            <h1 class="brand-title">STALINDLE</h1>
+            <span class="brand-subtitle">THE DAILY STALIN SORT TRIBUNAL</span>
+          </div>
+        </div>
+
+        <div class="header-center">
+          <div class="daily-badge">
+            <span class="daily-label">DAILY PURGE</span>
+            <span class="daily-number" id="dailyNumberText">#--</span>
+          </div>
+          <div class="daily-date" id="dailyDateText">2026-10-02</div>
+        </div>
+
+        <div class="header-right">
+          <button id="btnHowToPlay" class="icon-btn" title="Field Manual" aria-label="Field Manual">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+            </svg>
+          </button>
+          <button id="btnStats" class="icon-btn" title="Service Record" aria-label="Service Record">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+          </button>
+          <button id="btnSound" class="icon-btn" title="Toggle Audio" aria-label="Toggle Audio">
+            <span id="soundIcon">🔊</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Stage -->
+      <main class="main-content">
+        <!-- 3 Interactive Echelons / Tiers Stepper -->
+        <section class="tiers-bar">
+          <button class="tier-card active" id="tierBtn-squad" data-tier="squad">
+            <div class="tier-card-header">
+              <span class="tier-icon">🪖</span>
+              <span class="tier-tag">ECHELON 1</span>
+            </div>
+            <div class="tier-name">THE SQUAD</div>
+            <div class="tier-size">10 ELEMENTS</div>
+            <div class="tier-status" id="tierStatus-squad">READY</div>
+          </button>
+
+          <div class="tier-connector" id="conn1"></div>
+
+          <button class="tier-card locked" id="tierBtn-platoon" data-tier="platoon">
+            <div class="tier-card-header">
+              <span class="tier-icon">🎖️</span>
+              <span class="tier-tag">ECHELON 2</span>
+            </div>
+            <div class="tier-name">THE PLATOON</div>
+            <div class="tier-size">50 ELEMENTS</div>
+            <div class="tier-status" id="tierStatus-platoon">LOCKED</div>
+          </button>
+
+          <div class="tier-connector" id="conn2"></div>
+
+          <button class="tier-card locked" id="tierBtn-company" data-tier="company">
+            <div class="tier-card-header">
+              <span class="tier-icon">⭐</span>
+              <span class="tier-tag">ECHELON 3</span>
+            </div>
+            <div class="tier-name">THE COMPANY</div>
+            <div class="tier-size">100 ELEMENTS</div>
+            <div class="tier-status" id="tierStatus-company">LOCKED</div>
+          </button>
+        </section>
+
+        <!-- Streamlined 2-Column Telemetry Readout -->
+        <section class="telemetry-grid">
+          <div class="telemetry-card highlight-green">
+            <div class="telemetry-label">LOYAL SURVIVORS</div>
+            <div class="telemetry-value text-green" id="valSurvivors">0</div>
+            <div class="telemetry-sub" id="subSurvivors">0.0% SURVIVAL RATE</div>
+          </div>
+
+          <div class="telemetry-card highlight-red">
+            <div class="telemetry-label">PURGED TO SIBERIA</div>
+            <div class="telemetry-value text-red" id="valPurged">0</div>
+            <div class="telemetry-sub" id="subPurged">0.0% EXECUTED</div>
+          </div>
+        </section>
+
+        <!-- Canvas Visualizer Panel -->
+        <section class="canvas-panel">
+          <div class="canvas-header">
+            <div class="canvas-title" id="canvasTitle">
+              <span class="pulse-indicator"></span>
+              <span id="canvasTitleText">RADAR TRIBUNAL: THE SQUAD (10 ELEMENTS)</span>
+            </div>
+            <div class="canvas-badge">
+              <span>OFFICIAL DAILY RUN</span>
+            </div>
+          </div>
+
+          <div class="canvas-viewport">
+            <canvas id="sortCanvas" width="900" height="380"></canvas>
+            
+            <!-- Ready Overlay -->
+            <div id="canvasOverlay" class="canvas-overlay">
+              <div class="overlay-content">
+                <div class="overlay-emblem">★</div>
+                <h2 class="overlay-title" id="overlayTitle">THE SQUAD ASSEMBLED</h2>
+                <p class="overlay-desc" id="overlayDesc">
+                  Ten comrades stand in formation. Any recruit shorter than the preceding survivor will tumble to Siberia!
+                </p>
+                <button id="btnLaunchOverlay" class="action-btn-large">
+                  <span class="btn-hazard-stripes"></span>
+                  <span class="btn-text" id="overlayBtnText">INITIATE PURGE (10 ELEMENTS)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Clean Action Console Bar -->
+        <section class="command-bar">
+          <div class="command-info">
+            <span class="command-echelon-badge" id="commandEchelonBadge">ECHELON 1 / 3</span>
+            <span class="command-tip" id="commandTipText">Press Initiate Purge to inspect this echelon.</span>
+          </div>
+
+          <div class="command-actions">
+            <button id="btnMainAction" class="main-action-button">
+              <span class="btn-shine"></span>
+              <span id="mainActionText">INITIATE PURGE (10 ELEMENTS)</span>
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <span>STALINDLE &copy; 2026 — THE DAILY STALIN SORT TRIBUNAL</span>
+        <span class="footer-divider">•</span>
+        <span>ONE ATTEMPT PER DAY • 160 TOTAL COMRADES</span>
+      </footer>
+    </div>
+
+    <!-- MODAL: OFFICIAL TRIBUNAL DISPATCH (Results) -->
+    <div id="modalTribunal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal-box modal-dispatch">
+        <div class="dispatch-header">
+          <div class="dispatch-stamp">OFFICIAL PRAVDA DISPATCH</div>
+          <button class="modal-close-btn" id="closeTribunalBtn">&times;</button>
+        </div>
+
+        <div class="dispatch-body">
+          <div class="rank-award-card">
+            <div class="rank-medal" id="dispatchMedal">🎖️⭐</div>
+            <div class="rank-titles">
+              <div class="rank-official-tag">HIGHEST TRIBUNAL VERDICT</div>
+              <h2 class="rank-name" id="dispatchRankName">HERO OF SOCIALIST LABOUR</h2>
+              <div class="rank-russian" id="dispatchRussianName">ГЕРОЙ ТРУДА</div>
+            </div>
+          </div>
+
+          <div class="rank-quote-box" id="dispatchRankQuote">
+            "Discipline and faith in the collective yield unprecedented preservation."
+          </div>
+
+          <!-- Total Score Headline -->
+          <div class="dispatch-total-banner">
+            <div class="total-metric">
+              <span class="total-num text-green" id="dispatchTotalSurvivors">--</span>
+              <span class="total-denom">/ 160</span>
+              <span class="total-label">LOYAL SURVIVORS</span>
+            </div>
+            <div class="total-rate-badge" id="dispatchSurvivalRate">
+              0.0% SURVIVAL
+            </div>
+          </div>
+
+          <!-- 3-Tier Results Table -->
+          <div class="tier-breakdown-list">
+            <div class="tier-breakdown-row">
+              <div class="row-left">
+                <span class="row-icon">🪖</span>
+                <span class="row-name">Squad (10)</span>
+              </div>
+              <div class="row-mid">
+                <div class="row-progress-bar">
+                  <div class="row-progress-fill" id="fillSquad" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="row-right">
+                <span class="row-survivors" id="resSquad">0 / 10</span>
+                <span class="row-percent" id="pctSquad">(0.0%)</span>
+              </div>
+            </div>
+
+            <div class="tier-breakdown-row">
+              <div class="row-left">
+                <span class="row-icon">🎖️</span>
+                <span class="row-name">Platoon (50)</span>
+              </div>
+              <div class="row-mid">
+                <div class="row-progress-bar">
+                  <div class="row-progress-fill" id="fillPlatoon" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="row-right">
+                <span class="row-survivors" id="resPlatoon">0 / 50</span>
+                <span class="row-percent" id="pctPlatoon">(0.0%)</span>
+              </div>
+            </div>
+
+            <div class="tier-breakdown-row">
+              <div class="row-left">
+                <span class="row-icon">⭐</span>
+                <span class="row-name">Company (100)</span>
+              </div>
+              <div class="row-mid">
+                <div class="row-progress-bar">
+                  <div class="row-progress-fill" id="fillCompany" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="row-right">
+                <span class="row-survivors" id="resCompany">0 / 100</span>
+                <span class="row-percent" id="pctCompany">(0.0%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Share Preview Area -->
+          <div class="share-box">
+            <pre class="share-text" id="shareTextPreview"></pre>
+          </div>
+
+          <!-- Actions -->
+          <div class="dispatch-actions">
+            <button id="btnShareDispatch" class="btn-share-primary">
+              <span class="share-btn-icon">📋</span>
+              <span>COPY PRAVDA DISPATCH</span>
+            </button>
+          </div>
+
+          <div class="countdown-panel">
+            <span class="countdown-label">NEXT OFFICIAL PURGE IN:</span>
+            <span class="countdown-timer" id="countdownTimer">--:--:--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: HOW TO PLAY -->
+    <div id="modalHowToPlay" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>★</span> FIELD MANUAL: THE STALIN SORT
+          </div>
+          <button class="modal-close-btn" id="closeHowToBtn">&times;</button>
+        </div>
+        <div class="modal-body manual-content">
+          <div class="manual-section">
+            <div class="manual-badge">DOCTRINE</div>
+            <h3>WHAT IS STALIN SORT?</h3>
+            <p>
+              Stalin Sort is an esoteric $O(N)$ sorting algorithm designed to enforce absolute order.
+              The tribunal scans comrades from left to right:
+            </p>
+            <ol class="manual-steps">
+              <li><strong>The First Recruit:</strong> Automatically accepted as the starting loyal comrade.</li>
+              <li><strong>The Inspection:</strong> Each subsequent soldier is tested. If greater than or equal to the highest survivor so far, they are <strong>SPARED AND PROMOTED</strong>.</li>
+              <li><strong>The Purge:</strong> If smaller than the highest survivor so far, they are deemed out of order and <strong>TUMBLE TO SIBERIA</strong>!</li>
+            </ol>
+          </div>
+
+          <div class="manual-section">
+            <div class="manual-badge">THE THREE ECHELONS</div>
+            <h3>YOUR DAILY CHALLENGE</h3>
+            <p>You inspect three military formations one by one:</p>
+            <ul class="manual-tiers">
+              <li><strong>1. The Squad:</strong> 10 soldiers. Watch each comrade tested individually!</li>
+              <li><strong>2. The Platoon:</strong> 50 soldiers. Tactical review of mid-sized company.</li>
+              <li><strong>3. The Company:</strong> 100 soldiers. Mass algorithmic tribunal.</li>
+            </ul>
+          </div>
+
+          <div class="manual-section">
+            <div class="manual-badge">ONE ATTEMPT PER DAY</div>
+            <h3>THE CRUEL MISTRESS OF FATE</h3>
+            <div class="manual-callout">
+              You get strictly <strong>one daily trial</strong> across the three echelons.
+              <br><br>
+              If soldier #1 happens to be a giant (e.g. 98 out of 100), almost everyone who follows will tumble into Siberia!
+              <br><br>
+              If your formation begins with humble recruits who gradually rise in height, many comrades will survive and win you the <strong>Order of the Red Star</strong>!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: STATISTICS -->
+    <div id="modalStats" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>📊</span> STATE ARCHIVES: SERVICE RECORD
+          </div>
+          <button class="modal-close-btn" id="closeStatsBtn">&times;</button>
+        </div>
+        <div class="modal-body stats-content">
+          <div class="stats-summary-grid">
+            <div class="stat-pill">
+              <span class="stat-num" id="statGamesPlayed">0</span>
+              <span class="stat-name">PURGES COMPLETED</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num text-gold" id="statCurrentStreak">0</span>
+              <span class="stat-name">CURRENT STREAK</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num text-gold" id="statMaxStreak">0</span>
+              <span class="stat-name">MAX STREAK</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num text-green" id="statBestSurvivors">0</span>
+              <span class="stat-name">RECORD SURVIVORS</span>
+            </div>
+          </div>
+
+          <h3 class="stats-subtitle">SURVIVOR SCORE DISTRIBUTION</h3>
+          <div class="distribution-chart" id="distributionChart"></div>
+
+          <h3 class="stats-subtitle">HONOR ROLL OF RANKS</h3>
+          <div class="ranks-summary-list" id="ranksSummaryList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">DISPATCH COPIED TO CLIPBOARD!</div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

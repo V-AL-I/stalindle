@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff1a35"/>
+      <stop offset="100%" stop-color="#9d0208"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd166"/>
+      <stop offset="100%" stop-color="#ffb703"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <polygon points="32,2 40,22 62,22 44,36 51,58 32,45 13,58 20,36 2,22 24,22" fill="url(#redGrad)" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Central ascending sort bars -->
+  <rect x="23" y="32" width="3.5" height="6" fill="#06d6a0" rx="1"/>
+  <rect x="28" y="27" width="3.5" height="11" fill="#06d6a0" rx="1"/>
+  <rect x="33" y="22" width="3.5" height="16" fill="#06d6a0" rx="1"/>
+  <rect x="38" y="17" width="3.5" height="21" fill="url(#goldGrad)" rx="1"/>
+</svg>
