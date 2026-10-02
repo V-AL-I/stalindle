@@ -1,10 +1,9 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-  server: {
-    allowedHosts: ['stalindle.online'],
-  },
   preview: {
-    allowedHosts: ['stalindle.online'],
-  },
-});
+    port: 3000,
+    host: '127.0.0.1',
+    allowedHosts: ['stalindle.online', 'www.stalindle.online']
+  }
+})
